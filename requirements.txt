@@ -1,0 +1,12 @@
+google-genai
+google-adk[mcp]
+pydantic
+python-dotenv
+snowflake-connector-python
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+pandas
+openpyxl
+python-multipart
+fastmcp
