@@ -1,41 +1,153 @@
+"""
+agent/config.py
+===============
+
+Centralised configuration for the Agent.
+
+All credentials and settings are loaded from environment variables (via
+``python-dotenv``).  This means a single ``.env`` file at the repository root
+controls the entire runtime configuration — no hard-coded secrets, no
+per-environment code changes.
+
+Environment Variable Groups
+---------------------------
+
+**Google AI / Vertex AI**
+  - ``GOOGLE_API_KEY``           — Gemini direct API key (local dev).
+  - ``GOOGLE_CLOUD_PROJECT``     — GCP project for Vertex AI (production).
+  - ``GOOGLE_CLOUD_LOCATION``    — Vertex AI region (default: ``us-central1``).
+
+**Snowflake**
+  - ``SNOWFLAKE_USER``           — Snowflake username.
+  - ``SNOWFLAKE_PASSWORD``       — Snowflake password.
+  - ``SNOWFLAKE_ACCOUNT``        — Account identifier (e.g. ``xy12345.us-east-1``).
+  - ``SNOWFLAKE_WAREHOUSE``      — Compute warehouse name.
+  - ``SNOWFLAKE_DATABASE``       — Default database.
+  - ``SNOWFLAKE_SCHEMA``         — Default schema.
+  - ``SNOWFLAKE_ROLE``           — Role to use (should be read-only for the agent).
+
+**Google Sheets / Drive**
+  - ``GOOGLE_SERVICE_ACCOUNT_PATH`` — Path to service account JSON key.
+  - ``GOOGLE_TOKEN_PATH``           — Path to OAuth user token (``token.json``).
+                                       Falls back to ``agent/token.json``.
+  - ``GOOGLE_SHEETS_USER_EMAIL``    — Email for auto-sharing created sheets.
+
+**SMTP (Email Campaigns)**
+  - ``SMTP_HOST``       — Mail server host (default: ``smtp.gmail.com``).
+  - ``SMTP_PORT``       — Port number (default: ``587`` for STARTTLS).
+  - ``SMTP_USER``       — SMTP login username.
+  - ``SMTP_PASSWORD``   — SMTP password / app password.
+  - ``SMTP_FROM_EMAIL`` — Sender address in campaign emails.
+  - ``SMTP_FROM_NAME``  — Sender display name (default: ``Campaign Team``).
+"""
+
 import os
 from dataclasses import dataclass
 from typing import Optional
 
 from dotenv import load_dotenv
 
+# Load .env from the repository root before reading env vars
 load_dotenv()
 
 
 @dataclass
 class Config:
-    """Configuration for the Snowflake Agent."""
+    """Immutable snapshot of application configuration.
+
+    Constructed by reading environment variables at import time via default
+    values on each field.  Use ``Config.from_env()`` (or just ``Config()``)
+    to get a populated instance.
+
+    Why a dataclass?
+    ----------------
+    A dataclass gives us:
+    - Field-level defaults (``os.getenv`` calls at class definition time)
+    - Free ``__repr__`` for debugging (secrets are visible — don't log this
+      object in production)
+    - Straightforward type hints for IDE support
+    """
+
+    # ── Google AI / Vertex AI ─────────────────────────────────────────────────
     google_api_key: Optional[str] = os.getenv("GOOGLE_API_KEY")
+    """Direct API key for Gemini (used in local dev; takes priority over Vertex)."""
+
     google_cloud_project: Optional[str] = os.getenv("GOOGLE_CLOUD_PROJECT")
-    google_cloud_location: Optional[str] = os.getenv("GOOGLE_CLOUD_LOCATION")
+    """GCP project ID — required for Vertex AI auth in production."""
 
+    google_cloud_location: Optional[str] = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+    """Vertex AI region.  Defaults to ``us-central1`` which supports Gemini 2."""
+
+    # ── Snowflake ─────────────────────────────────────────────────────────────
     snowflake_user: Optional[str] = os.getenv("SNOWFLAKE_USER")
-    snowflake_password: Optional[str] = os.getenv("SNOWFLAKE_PASSWORD")
-    snowflake_account: Optional[str] = os.getenv("SNOWFLAKE_ACCOUNT")
-    snowflake_warehouse: Optional[str] = os.getenv("SNOWFLAKE_WAREHOUSE")
-    snowflake_database: Optional[str] = os.getenv("SNOWFLAKE_DATABASE")
-    snowflake_schema: Optional[str] = os.getenv("SNOWFLAKE_SCHEMA")
-    snowflake_role: Optional[str] = os.getenv("SNOWFLAKE_ROLE")
+    """Snowflake login username."""
 
+    snowflake_password: Optional[str] = os.getenv("SNOWFLAKE_PASSWORD")
+    """Snowflake login password."""
+
+    snowflake_account: Optional[str] = os.getenv("SNOWFLAKE_ACCOUNT")
+    """Snowflake account identifier (e.g. ``xy12345.us-east-1``)."""
+
+    snowflake_warehouse: Optional[str] = os.getenv("SNOWFLAKE_WAREHOUSE")
+    """Virtual warehouse used for query compute."""
+
+    snowflake_database: Optional[str] = os.getenv("SNOWFLAKE_DATABASE")
+    """Default database context."""
+
+    snowflake_schema: Optional[str] = os.getenv("SNOWFLAKE_SCHEMA")
+    """Default schema context."""
+
+    snowflake_role: Optional[str] = os.getenv("SNOWFLAKE_ROLE")
+    """Snowflake role — should be a READ-ONLY role for the agent."""
+
+    # ── Google Sheets / Drive ─────────────────────────────────────────────────
     google_service_account_path: Optional[str] = os.getenv("GOOGLE_SERVICE_ACCOUNT_PATH")
+    """Absolute path to the service account JSON key file.
+    Used in production (Vertex AI) where interactive OAuth isn't possible."""
+
     google_token_path: Optional[str] = os.getenv(
         "GOOGLE_TOKEN_PATH",
         os.path.join(os.path.dirname(__file__), "token.json"),
     )
-    google_sheets_user_email: Optional[str] = os.getenv("GOOGLE_SHEETS_USER_EMAIL")
+    """Path to the OAuth user token file.
+    Generated by ``scripts/setup_google_user_auth.py``.
+    Preferred over service account when available (acts on behalf of a user)."""
 
+    google_sheets_user_email: Optional[str] = os.getenv("GOOGLE_SHEETS_USER_EMAIL")
+    """Email address for auto-sharing newly created sheets and receiving
+    verification copies of campaign emails."""
+
+    # ── SMTP / Email Campaigns ────────────────────────────────────────────────
     smtp_host: Optional[str] = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    """Mail server hostname.  For Gmail use ``smtp.gmail.com``."""
+
     smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
+    """SMTP port.  ``587`` = STARTTLS (recommended), ``465`` = SSL."""
+
     smtp_user: Optional[str] = os.getenv("SMTP_USER")
+    """SMTP login username (typically the sender email address)."""
+
     smtp_password: Optional[str] = os.getenv("SMTP_PASSWORD")
+    """SMTP password or app-specific password.
+    For Gmail: create an App Password at https://myaccount.google.com/apppasswords"""
+
     smtp_from_email: Optional[str] = os.getenv("SMTP_FROM_EMAIL")
+    """``From`` address in outgoing campaign emails."""
+
     smtp_from_name: Optional[str] = os.getenv("SMTP_FROM_NAME", "Campaign Team")
+    """``From`` display name in outgoing campaign emails."""
 
     @classmethod
     def from_env(cls) -> "Config":
+        """Construct a ``Config`` from the current environment.
+
+        Equivalent to ``Config()`` — provided as an explicit factory method
+        to make the intent clear at call sites (readers see ``Config.from_env()``
+        and immediately understand this reads from the environment).
+
+        Returns
+        -------
+        Config
+            Populated configuration instance.
+        """
         return cls()
