@@ -84,8 +84,8 @@ def create():
             "SMTP_FROM_NAME": os.getenv("SMTP_FROM_NAME"),
             "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"
         },
-        display_name="Starwood Snowflake MCP Connector",
-        description="Starwood Snowflake MCP Connector",
+        display_name="AI Tinkerers Snowflake Agent",
+        description="Connects to Snowflake via MCP",
     )
 
     print("Deployed agent:", remote_app.resource_name)
@@ -139,8 +139,8 @@ def update():
             "SMTP_FROM_NAME": os.getenv("SMTP_FROM_NAME"),
             "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"
         },
-        display_name="Starwood Snowflake MCP Connector",
-        description="Starwood Snowflake MCP Connector",
+        display_name="AI Tinkerers Snowflake Agent",
+        description="Connects to Snowflake via MCP",
     )
 
     print("Updated agent:", remote_app.resource_name)

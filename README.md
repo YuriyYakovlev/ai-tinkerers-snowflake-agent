@@ -1,252 +1,248 @@
-# Business Intelligence Agent for Snowflake
+<div style="font-family: Arial, sans-serif; font-size: 24px; line-height: 1.6;">
 
-A conversational AI assistant that helps business owners and managers access and analyze their company data through natural language questions.
+<h1 style="font-size: 64px; color: #4285F4; margin-bottom: 40px;">❄️ Snowflake AI Agent</h1>
 
-## System Capabilities
+<div style="font-size: 32px; font-weight: bold; margin-bottom: 20px;">
+  Conversational Business Intelligence
+</div>
 
-### Architecture Overview
-
-```mermaid
-graph TB
-    Agent["🤖 AI Agent<br/>Business Intelligence"]
-    
-    subgraph Nodes["Connected Systems"]
-        SN["❄️ Snowflake<br/>Data Warehouse & Analytics"]
-        GS["📊 Google Sheets<br/>Reports & Visualizations"]
-        EM["📧 Email Service<br/>Marketing Campaigns"]
-    end
-    
-    Agent <--> SN
-    Agent <--> GS
-    Agent --> EM
-    
-    SN -.-> |"Data Export"| GS
-    GS -.-> |"Campaign Source"| EM
-    
-    style Agent fill:#4A90D9,stroke:#333,color:#fff
-    style SN fill:#29B5E8,stroke:#333,color:#fff
-    style GS fill:#0F9D58,stroke:#333,color:#fff
-    style EM fill:#EA4335,stroke:#333,color:#fff
-```
-
-### Data Flow Pipeline
-
-```mermaid
-flowchart LR
-    subgraph SN["❄️ Snowflake"]
-        SND["Customer Data"]
-        SNR["Revenue Metrics"]
-    end
-    
-    subgraph GS["📊 Google Sheets"]
-        GSR["Analysis Reports"]
-        GSL["Contact Lists"]
-    end
-    
-    subgraph EM["📧 Email"]
-        EMC["Campaigns"]
-        EMT["Notifications"]
-    end
-    
-    SN -->|"replicate_data_to_sheet"| GS
-    GS -->|"send_campaign_emails"| EM
-    
-    style SN fill:#29B5E8,stroke:#333,color:#fff
-    style GS fill:#0F9D58,stroke:#333,color:#fff
-    style EM fill:#EA4335,stroke:#333,color:#fff
-```
-
-## ✨ What Can You Ask?
-
-This agent understands business questions and provides instant answers with data from your company's Snowflake data warehouse.
-
-### Example Questions
-
-**Sales & Revenue:**
-- "Show me last quarter's sales"
-- "What were our highest revenue months this year?"
-- "How much revenue did we generate last month?"
-
-**Customer & Account Information:**
-- "Who are our top 10 customers by revenue?"
-- "Show me account details for [Company Name]"
-- "How many active accounts do we have?"
-
-**Orders & Transactions:**
-- "How many orders did we process last week?"
-- "Show me recent transactions"
-- "What's our average order value?"
-
-**Data Export:**
-- "Export last month's sales to Google Sheets"
-- "Create a spreadsheet with our top customers"
-- "Send this data to a new sheet"
-
-## 🚀 How to Use
-
-### Ask Questions in Plain English
-
-Just type your question naturally - no need to know databases, SQL, or technical details:
-
-```
-You: "Show me our top 5 customers"
-Agent: [Provides a clean table with customer names and revenue]
-
-You: "Export this to Google Sheets"
-Agent: [Creates a spreadsheet and shares the link]
-```
-
-### Get Data Exported to Google Sheets
-
-The agent can automatically create Google Sheets with your data:
-- Export query results
-- Create formatted reports
-- Share links instantly
-- Save sheet aliases for easy reference
-
-## 💡 Features
-
-- **Natural Language**: Ask questions in plain English, no technical knowledge required
-- **Instant Answers**: Get data formatted in clean, readable tables
-- **Google Sheets Integration**: Export data directly to spreadsheets
-- **Business-Focused**: Results presented in business terms (customers, sales, revenue, etc.)
-- **Smart Context**: Agent understands business metrics and finds the right data
-- **Error-Friendly**: Clear, helpful messages if something goes wrong
-
-## 🎓 Learn About AI Agents
-New to AI Agents? We have prepared comprehensive resources to help you understand the technology:
-
-- **[📖 Comprehensive Agent Tutorial](TUTORIAL.md)**: Deep dive into Agent concepts, Architecture, RAG, Vector DBs, and the specific stack used in this project.
-- **[Slides Generation Prompt](SLIDE_PROMPT.md)**: A ready-to-use prompt to generate a professional presentation deck from the tutorial content.
-
-### 🛠️ For AI Engineers & Architects (Advanced)
-- **[⚙️ Agent Engineering Handbook](AGENT_ENGINEERING_HANDBOOK.md)**: Deep dive into Vertex Reasoning Engine internals, A2A Protocols, Security Guardrails, and production CI/CD for agents.
-- **[Technical Architecture Slides Prompt](TECHNICAL_SLIDE_PROMPT.md)**: Generate a CTO-level architecture deck emphasizing security, scalability, and stack choices.
-
-## 📊 What You'll Get
-
-### Clean Data Tables
-
-Results are formatted as readable markdown tables:
-
-| Customer | Revenue | Orders |
-|----------|---------|--------|
-| Acme Corp | $125,000 | 45 |
-| Tech Solutions | $98,500 | 32 |
-| Global Industries | $87,200 | 28 |
-
-### Google Sheets Links
-
-When you export data, you'll get:
-- A shareable Google Sheets URL
-- Formatted data with headers
-- Easy-to-reference sheet aliases
-
-## 🔧 For IT Teams: Setup
-
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Environment Variables
-Create a `.env` file:
-
-```env
-# Google AI
-GOOGLE_API_KEY=your_gemini_api_key
-
-# Snowflake Connection
-SNOWFLAKE_USER=your_username
-SNOWFLAKE_PASSWORD=your_password
-SNOWFLAKE_ACCOUNT=your_account
-SNOWFLAKE_WAREHOUSE=your_warehouse
-SNOWFLAKE_DATABASE=your_database
-SNOWFLAKE_SCHEMA=your_schema
-SNOWFLAKE_ROLE=your_role
-
-# Google Sheets (for exports)
-GOOGLE_SERVICE_ACCOUNT_PATH=/path/to/service_account.json
-```
-
-### 3. Run or Deploy the Agent
-
-To run the agent locally for testing:
-
-1.  **Activate your virtual environment**:
-    ```bash
-    source venv/bin/activate
-    ```
-2.  **Start the local ADK web server**:
-    ```bash
-    adk web
-    ```
-    Open your browser to the URL provided (usually `http://127.0.0.1:8000`) to interact with your agent.
-
-To deploy the agent to a production Google Cloud environment (requires `gcloud` CLI configured):
-
-```bash
-# Test locally
-python verify_agent.py
-
-# Deploy to production (see deploy.py)
-python deploy.py
-```
-
-
-## 🛡️ Security & Privacy
-
-- **Data Protection**: All connections use encrypted credentials
-- **Access Control**: Agent only accesses data your Snowflake role permits
-- **Audit Trail**: All queries and exports are logged
-- **No Data Storage**: Agent doesn't store your business data
-
-## 📈 Use Cases
-
-### Executive Dashboards
-- "Show me this quarter's key metrics"
-- "Export monthly revenue trends to Google Sheets"
-
-### Customer Analytics
-- "Who are our most valuable customers?"
-- "Show me customer growth over the past year"
-
-### Sales Reports
-- "What products are selling best?"
-- "Create a sales report for last month"
-
-### Financial Analysis
-- "Show me profit margins by product category"
-- "Export year-over-year financial comparison"
-
-## ❓ FAQ
-
-### Q: Do I need to know SQL?
-**A:** No! Ask questions in plain English. The agent handles all technical details.
-
-### Q: Can I see all available data sources?
-**A:** Just ask questions about your business metrics. The agent will find and access the relevant data automatically.
-
-### Q: How do I export data?
-**A:** Just say "export this to Google Sheets" or "create a spreadsheet with [data]"
-
-### Q: What if I get an error?
-**A:** The agent provides friendly error messages. Try rephrasing your question or contact your IT support.
-
-### Q: Can I save common reports?
-**A:** Yes! Use sheet aliases to save frequently accessed reports (e.g., "monthly_sales").
-
-## 🆘 Need Help?
-
-If you encounter issues:
-1. Try rephrasing your question
-2. Be more specific about what data you need
-3. Contact your IT support team
-
-## 📧 Support
-
-This agent is designed for business owners and managers. For technical support or configuration issues, please contact your IT department.
+<p style="font-size: 28px; margin-bottom: 40px;">
+  Empowering business users to talk to their data without writing a single line of SQL.
+</p>
 
 ---
 
-**Remember**: This is your business intelligence assistant. Ask it questions like you would ask a data analyst!
+<h2 style="font-size: 48px; color: #EA4335; margin-top: 40px;">🚫 The Problem</h2>
+
+<ul style="font-size: 28px;">
+  <li><strong>Data Silos:</strong> Critical business data is locked in warehouses.</li>
+  <li><strong>Technical Barrier:</strong> SQL knowledge is required to answer simple questions.</li>
+  <li><strong>Slow Turnaround:</strong> Business teams wait days for analyst reports.</li>
+</ul>
+
+---
+
+<h2 style="font-size: 48px; color: #34A853; margin-top: 40px;">✅ The Solution</h2>
+
+<p style="font-size: 28px;">
+  An intelligent agent that connects <strong>Snowflake</strong>, <strong>Google Sheets</strong>, and <strong>Email</strong> into a seamless workflow.
+</p>
+
+<ul style="font-size: 28px;">
+  <li>🗣️ <strong>Natural Language:</strong> "Show me top sales this quarter."</li>
+  <li>📊 <strong>Instant Visualization:</strong> Auto-generates charts in Google Sheets.</li>
+  <li>⚡ <strong>Actionable:</strong> Send email campaigns directly from data insights.</li>
+</ul>
+
+---
+
+<h2 style="font-size: 48px; color: #FBBC05; margin-top: 40px;">🛠️ Tech Stack</h2>
+
+<ul style="font-size: 28px;">
+  <li><strong>Engine:</strong> Vertex AI Reasoning Engine</li>
+  <li><strong>Model:</strong> Gemini 2.5 Flash</li>
+  <li><strong>Protocol:</strong> Model Context Protocol (MCP)</li>
+  <li><strong>Integration:</strong> Snowflake Connector + Google Workspace</li>
+</ul>
+
+---
+
+<div style="font-size: 36px; font-weight: bold; text-align: center; margin-top: 60px;">
+  🚀 Ready to Demo
+</div>
+
+<br><br><br>
+<hr>
+
+<h1 style="font-size: 48px; color: #555; margin-top: 60px;">📝 Technical Cheat Sheet</h1>
+
+<h2 style="font-size: 32px; color: #4285F4; margin-top: 30px;">Agent Development Kit (ADK)</h2>
+<p style="font-size: 24px;">Agent Development Kit (ADK) is a framework for building AI agents that can maintain context and memory across interactions. It enables developers to create conversational agents that can remember user-specific information during a session (short-term memory) and retain data across multiple sessions (long-term memory).</p>
+
+```mermaid
+flowchart TB
+    user(["😊 user"])
+
+    user -->|user input| Runner
+    Runner -->|event stream| user
+
+    subgraph ADK ["ADK Framework"]
+        direction TB
+
+        subgraph Runner ["Runner (purple)"]
+            EP["event processor"]
+        end
+
+        subgraph ADKS ["ADK Services"]
+            direction TB
+            session["session"]
+            memory["memory"]
+        end
+
+        subgraph AE ["Agent Execution"]
+        end
+
+        Model["Model"]
+        Tools["Tools"]
+    end
+
+    session --> sessionDB[("session and memory storage")]
+    memory --> memDB[("memory storage")]
+
+    Runner -->|→| ADKS
+    ADKS -->|→| Runner
+
+    Runner -->|event loop| AE
+    AE -->|event loop| Runner
+
+    AE --> Model
+    AE --> Tools
+```
+
+<h2 style="font-size: 32px; color: #EA4335; margin-top: 30px;">Gemini Enterprise</h2>
+<p style="font-size: 24px;">Gemini Enterprise is an AI platform designed to be the primary AI interface for workplaces. It combines company data, advanced reasoning models, and automated workflows into a single, secure hub. Gemini Enterprise is our soundproof, biometric-secured boardroom.</p>
+
+<h2 style="font-size: 32px; color: #FBBC05; margin-top: 30px;">Vertex AI Reasoning Engine</h2>
+<p style="font-size: 24px;">Vertex AI Reasoning Engine is a software-based cloud service provided by Google Cloud.</p>
+<ul style="font-size: 24px;">
+  <li><strong>Deploy your code:</strong> You upload your Python-based AI logic to the Vertex AI Platform.</li>
+  <li><strong>Forget the hardware:</strong> It automatically handles the "plumbing"—the CPU/GPU power, memory, and scaling needed to run your AI agents.</li>
+  <li><strong>Use it as an API:</strong> Once deployed, you interact with it by sending requests to a web address (endpoint)</li>
+</ul>
+
+```mermaid
+flowchart LR
+    User(["👥 User"])
+
+    subgraph Runtime ["Runtime (Reasoning Engine)"]
+        direction LR
+
+        QR["Query Request"]
+
+        subgraph Orchestration ["Orchestration (Agent)"]
+            direction LR
+
+            Prompt["Prompt"]
+            TR["Tool Request"]
+            TRes["Tool Results"]
+
+            subgraph LLM ["LLM (Google Cloud)"]
+                Gemini["Gemini"]
+            end
+
+            subgraph Tools ["Tools"]
+                ToolA["Tool A API"]
+                ToolB["Tool B API"]
+            end
+        end
+
+        Response["Response"]
+    end
+
+    User -->|→| QR
+    QR --> Prompt
+    Prompt --> Gemini
+    Gemini --> TR
+    TR --> ToolA
+    ToolA --> TRes
+    TRes --> Gemini
+    Gemini --> Response
+    Response -->|→| User
+```
+
+<h2 style="font-size: 32px; color: #34A853; margin-top: 30px;">Model Context Protocol (MCP)</h2>
+<p style="font-size: 24px;">MCP addresses the issue where AI systems struggle to provide accurate responses due to scattered data across multiple enterprise systems. It operates on a client-server model:</p>
+<ul style="font-size: 24px;">
+  <li><strong>MCP clients</strong> (such as our custom agents) send requests for context or data.</li>
+  <li><strong>MCP reduces development time</strong> and complexity when building, or integrating with, an AI application or agent.</li>
+  <li><strong>The MCP server</strong> manages these requests by handling:
+    <ul>
+      <li>Connections to various enterprise systems.</li>
+      <li>Permissions and privacy guardrails to maintain data security.</li>
+      <li>Data assembly, harmonization, and injection back into AI prompts.</li>
+    </ul>
+  </li>
+</ul>
+
+```mermaid
+flowchart LR
+    CI["**Chat interface**: Claude Desktop, LibreChat"]
+    IDE["**IDEs and code editors**: Claude Code, Goose"]
+    AI["**Other AI applications**: 5ire, Superinterface"]
+
+    MCP["**MCP**: Standardized protocol"]
+
+    DF["**Data and file systems**: PostgreSQL, SQLite, GDrive"]
+    DT["**Development tools**: Git, Sentry, etc."]
+    PT["**Productivity tools**: Slack, Google Maps, etc."]
+
+    CI <-->|Bidirectional data flow| MCP
+    IDE <-->|Bidirectional data flow| MCP
+    AI <-->|Bidirectional data flow| MCP
+
+    MCP <-->|Bidirectional data flow| DF
+    MCP <-->|Bidirectional data flow| DT
+    MCP <-->|Bidirectional data flow| PT
+
+    subgraph left [" AI applications "]
+        CI
+        IDE
+        AI
+    end
+
+    subgraph right [" Data sources and tools "]
+        DF
+        DT
+        PT
+    end
+```
+
+| Features | HTTP | MCP |
+|---|---|---|
+| Purpose | Fetch documents/web pages | Drive reasoning and conversation |
+| Format | Text-based requests/responses | Structured JSON with chat + tools |
+| State | Stateless | Maintains memory & context |
+| User Experience | Click, type, navigate | Converse, request, clarify |
+| Example Use Case | Get a web page | Get AI to plan your day |
+
+<h2 style="font-size: 32px; color: #4285F4; margin-top: 30px;">Modern Agentic Architecture</h2>
+<p style="font-size: 24px;">Unlike a basic chatbot that repeats information, this Agent acts as a Researcher. It creates a plan first: "Check CRM -> Compare to DB -> Write Report." ReAct Loop (Reason + Act), Chain-of-Thought (CoT).</p>
+<ul style="font-size: 24px;">
+  <li><strong>Thought:</strong> Model receives a prompt and generates an internal monologue ("Thought").</li>
+  <li><strong>Action:</strong> Outputs a structured FunctionCall (e.g., query_snowflake).</li>
+  <li><strong>Observation:</strong> Code executes the function; return value feeds back into context.</li>
+  <li><strong>Repeat:</strong> Model uses the data to decide the next step.</li>
+  <li><strong>Critical:</strong> This enables dynamic problem solving. If a function returns "No data," the agent autonomously decides to broaden the search.</li>
+</ul>
+
+<h2 style="font-size: 32px; color: #EA4335; margin-top: 30px;">Performance</h2>
+<div style="font-size: 24px;">
+  <strong>1. Latency & Limits</strong>
+  <ul>
+    <li><strong>Salesforce Rate Limits:</strong> Handled by ErrorHandler class (catches 429 exceptions).</li>
+    <li><strong>Snowflake Cold Starts:</strong> Warehouse spin-up takes 1-2 seconds.</li>
+    <li><strong>User Expectation:</strong> Managed via "Streaming Responses" (yield Event in agent.py) displaying progress ("Thinking...", "Querying Snowflake...", "Analyzing...").</li>
+  </ul>
+  <strong>2. Context Window Management</strong>
+  <ul>
+    <li><strong>Problem:</strong> 22 tools + massive schemas = token overflow.</li>
+    <li><strong>Schema Sanitization:</strong> agent.py:sanitize_schema strips "title" and "additionalProperties" from JSON schema, saving ~30% of tokens.</li>
+    <li><strong>Observation Truncation:</strong> tools.py:format_as_table limits Snowflake results to max_rows=100, providing the LLM a preview and prompting query refinement if more data is needed.</li>
+  </ul>
+</div>
+
+<h2 style="font-size: 32px; color: #FBBC05; margin-top: 30px;">Security, Governance, and Risks</h2>
+<ul style="font-size: 24px;">
+  <li><strong>Principle of Least Privilege:</strong> We restrict the agent’s OAuth scopes (e.g., Salesforce/Google) to specific functional tasks like "Read/Write Contacts," preventing any unauthorized administrative or system-level changes.</li>
+  <li><strong>"Double-Tap" Verification:</strong> Sensitive actions require a mandatory confirm=True flag; the agent is physically unable to execute these tasks in a single turn without a deliberate "second look" or human intervention.</li>
+  <li><strong>Static Tool Mapping:</strong> The agent operates in a strict sandbox where it can only trigger pre-defined functions; it cannot write or execute arbitrary code, effectively neutralizing "hallucinated" or malicious commands like “os.system("rm -rf /")”</li>
+</ul>
+
+<h2 style="font-size: 32px; color: #34A853; margin-top: 30px;">Data Privacy (GDPR)</h2>
+<p style="font-size: 24px;">The Agent is GDPR-aware by design. It acts as a specialized employee who is contractually bound not to remember customer names after the meeting.</p>
+<ul style="font-size: 24px;">
+  <li><strong>Zero-Retention Policy:</strong> Gemini Enterprise allows us to configure "Ephemerality." The prompt data is processed in memory and then discarded. It is not logged to Google's training corpus. We use Pydantic validators to mask sensitive fields before they even reach the model context window if necessary.</li>
+  <li><strong>Crucially, this environment uses Frozen Weights:</strong> This means while we use Google's LLMs to process our data, the model itself effectively 'forgets' everything the moment the task is done. Our Salesforce records and Snowflake financials are used strictly as temporary context—never to train Google's base models. The model holds that data in RAM (Context) only for the duration of the request.</li>
+</ul>
+
+</div>

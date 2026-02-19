@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 PROMPT_PATH = Path(__file__).parent / "prompts.md"
 AGENT_NAME = "snowflake_agent"
-AGENT_DESCRIPTION = "AI agent for Snowflake and Google Sheets integration"
+AGENT_DESCRIPTION = "AI agent for Snowflake integration"
 MODEL_NAME = "gemini-2.5-flash"
 
 def load_prompt() -> str:
@@ -184,11 +184,25 @@ class Agent(BaseAgent):
         return history
 
     async def run_async(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+        # Capture invocation_id from context if available (needed for telemetry)
+        invocation_id = getattr(ctx, "invocation_id", None)
+        
+        def create_event(**kwargs):
+            event = Event(**kwargs)
+            if invocation_id:
+                try:
+                    # Bypass Pydantic protection if necessary to inject invocation_id
+                    # This fixes "Required field is not set" error when telemetry is enabled
+                    object.__setattr__(event, "invocation_id", invocation_id)
+                except Exception:
+                    logger.warning("Could not set invocation_id on Event")
+            return event
+
         user_message = ctx.user_content
         logger.info(f"Received user message: {user_message}")
         
         if not user_message:
-            yield Event(
+            yield create_event(
                 author=self.name,
                 content=types.Content(parts=[types.Part(text="Please provide a message.")]),
             )
@@ -223,7 +237,7 @@ class Agent(BaseAgent):
                 if not func_calls:
                     text_parts = [p.text for p in candidate.content.parts if p.text]
                     if text_parts:
-                        yield Event(
+                        yield create_event(
                             author=self.name,
                             content=types.Content(parts=[types.Part(text="\n".join(text_parts))]),
                         )
@@ -246,11 +260,11 @@ class Agent(BaseAgent):
                     model=self.model_name, contents=contents, config=gen_config
                 )
 
-            yield Event(author=self.name, actions=EventActions(escalate=False))
+            yield create_event(author=self.name, actions=EventActions(escalate=False))
             
         except Exception as e:
             logger.error(f"Error in run_async: {e}", exc_info=True)
-            yield Event(
+            yield create_event(
                 author=self.name,
                 content=types.Content(parts=[types.Part(text=f"An error occurred: {str(e)}")]),
             )
