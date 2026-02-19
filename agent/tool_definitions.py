@@ -1,3 +1,4 @@
+
 import json
 import logging
 import time
@@ -11,10 +12,18 @@ from .config import Config
 from .tools import Toolkit
 
 # Configure logging
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+logger.info("Initializing tool_definitions.py...")
+
 # Initialize FastMCP server
-mcp = FastMCP("Snowflake Agent")
+try:
+    mcp = FastMCP("Snowflake Agent")
+    logger.info("FastMCP initialized successfully.")
+except Exception as e:
+    logger.critical(f"Failed to initialize FastMCP: {e}")
+    mcp = None
 
 # Global instances
 _toolkit: Toolkit | None = None
@@ -179,79 +188,7 @@ async def _list_tables_internal(schema_name: str = "") -> str:
 # These functions remain in the code but are commented out to prevent exposure to users.
 # The agent can still query data internally using _query_data_internal.
 
-    """Preview the first N rows of a table.
-    
-    Args:
-        table_name: Table name (can include schema, e.g., SCHEMA.TABLE or just TABLE)
-        limit: Number of rows to preview (default: 10)
-    """
-    from .tools import format_as_table
-    toolkit = get_toolkit()
-    
-    original_input = table_name
-    
-    # 1. Remove common prefixes
-    for prefix in ["preview table ", "preview ", "show table ", "show ", "table "]:
-        if table_name.lower().startswith(prefix):
-            table_name = table_name[len(prefix):].strip()
-    
-    if "preview" in table_name.lower():
-         table_name = table_name.lower().split("preview")[0].strip()
-         
-    table_name = table_name.strip()
-    
-    if original_input != table_name:
-        logger.info(f"Sanitized input: '{original_input}' -> '{table_name}'")
 
-    if '.' not in table_name:
-        try:
-            results = toolkit.snowflake.query(f"SELECT * FROM {table_name} LIMIT {limit}")
-            return format_as_table(results)
-        except:
-            try:
-                search_query = f"SHOW TABLES LIKE '{table_name}' IN ACCOUNT"
-                tables = toolkit.snowflake.query(search_query, use_cache=False)
-                
-                if not tables:
-                     search_query = f"SHOW TABLES LIKE '{table_name.upper()}' IN ACCOUNT"
-                     tables = toolkit.snowflake.query(search_query, use_cache=False)
-                
-                if tables:
-                    target = tables[0]
-                    db = target.get("database_name", target.get("DATABASE_NAME", ""))
-                    schema = target.get("schema_name", target.get("SCHEMA_NAME", ""))
-                    name = target.get("name", target.get("NAME", ""))
-                    
-                    if db and schema and name:
-                        fqn = f"{db}.{schema}.{name}"
-                        results = toolkit.snowflake.query(f"SELECT * FROM {fqn} LIMIT {limit}")
-                        return f"Note: Table found in {fqn}\n\n" + format_as_table(results)
-
-                try:
-                    current_db_schemas = toolkit.snowflake.query(f"SHOW SCHEMAS LIKE '{table_name}'", use_cache=False)
-                    if current_db_schemas:
-                        return f"{table_name} appears to be a SCHEMA, not a table.\n\nHere are the tables in schema '{table_name}':\n\n" + await list_tables(table_name)
-                except:
-                    pass
-
-                try:
-                    dbs = toolkit.snowflake.query(f"SHOW DATABASES LIKE '{table_name}'", use_cache=False)
-                    if dbs:
-                        return f"{table_name} appears to be a DATABASE, not a table.\n\nHere are the schemas in database '{table_name}':\n\n" + await list_schemas(table_name)
-                except:
-                    pass
-
-                return f"Table '{table_name}' not found in any schema or database.\n\nTry:\n1. Use `list_tables()` to see available tables\n2. Specify the full table name including schema (e.g., PUBLIC.{table_name})"
-            except Exception as e:
-                error_type, message, suggestions = toolkit.error_handler.handle_snowflake_error(e)
-                return toolkit.error_handler.format_error_response(e, error_type, message, suggestions)
-    else:
-        try:
-            results = toolkit.snowflake.query(f"SELECT * FROM {table_name} LIMIT {limit}")
-            return format_as_table(results)
-        except Exception as e:
-            error_type, message, suggestions = toolkit.error_handler.handle_snowflake_error(e)
-            return toolkit.error_handler.format_error_response(e, error_type, message, suggestions)
 
 
 

@@ -69,7 +69,7 @@ flowchart TB
     subgraph ADK ["ADK Framework"]
         direction TB
 
-        subgraph Runner ["Runner (purple)"]
+        subgraph Runner ["Runner"]
             EP["event processor"]
         end
 
